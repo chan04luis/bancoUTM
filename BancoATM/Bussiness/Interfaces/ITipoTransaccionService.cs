@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public interface ITipoTransaccionService
 {
-    TipoTransaccion GetTipoTransaccionById(int id);
-    List<TipoTransaccion> GetAllTipoTransacciones();
-    void AddTipoTransaccion(TipoTransaccion tipoTransaccion);
-    void UpdateTipoTransaccion(TipoTransaccion tipoTransaccion);
-    void DeleteTipoTransaccion(int id);
+    Task<TipoTransaccion> GetTipoTransaccionById(int id);
+    Task<List<TipoTransaccion>> GetAllTipoTransacciones();
+    Task<TipoTransaccion> AddTipoTransaccion(TipoTransaccion tipoTransaccion);
+    Task<TipoTransaccion> UpdateTipoTransaccion(TipoTransaccion tipoTransaccion);
+    Task<int?> DeleteTipoTransaccion(int id);
 }

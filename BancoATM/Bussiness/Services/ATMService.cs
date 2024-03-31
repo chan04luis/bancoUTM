@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class ATMService : IATMService
 {
@@ -10,32 +11,44 @@ public class ATMService : IATMService
         _atmRepository = atmRepository;
     }
 
-    public List<ATM> GetAllATMs()
+    public async Task<List<ATMDTO>> GetAllATMs()
     {
-        return _atmRepository.GetAll();
+
+        var atms = await _atmRepository.GetAll();
+        var atmDTOList = new List<ATMDTO>();
+
+        foreach (var atm in atms)
+        {
+            var atmDTO = Mapper.MapATMToDTO(atm);
+
+            atmDTOList.Add(atmDTO);
+        }
+
+        return atmDTOList;
     }
 
-    public ATM GetATMById(int id)
+    public async Task<ATMDTO> GetATMById(int id)
     {
-        return _atmRepository.GetById(id);
+        return Mapper.MapATMToDTO(await _atmRepository.GetById(id));
     }
 
-    public void AddATM(ATM atm)
+    public async Task<ATMDTO> AddATM(ATM atm)
     {
-        _atmRepository.Add(atm);
+        return Mapper.MapATMToDTO(await _atmRepository.Add(atm));
     }
 
-    public void UpdateATM(ATM atm)
+    public async Task<ATMDTO> UpdateATM(ATMDTO atm)
     {
-        _atmRepository.Update(atm);
+        return Mapper.MapATMToDTO(await _atmRepository.Update(Mapper.MapATMToDTO(atm)));
     }
 
-    public void DeleteATM(int id)
+    public async Task<int> DeleteATM(int id)
     {
-        var atm = _atmRepository.GetById(id);
+        var atm = await _atmRepository.GetById(id);
         if (atm != null)
         {
-            _atmRepository.Delete(atm);
+            return await _atmRepository.Delete(atm);
         }
+        return 0;
     }
 }

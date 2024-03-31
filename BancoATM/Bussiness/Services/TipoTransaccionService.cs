@@ -10,32 +10,33 @@ public class TipoTransaccionService : ITipoTransaccionService
         _tipoTransaccionRepository = tipoTransaccionRepository;
     }
 
-    public TipoTransaccion GetTipoTransaccionById(int id)
+    public async Task<TipoTransaccion> GetTipoTransaccionById(int id)
     {
-        return _tipoTransaccionRepository.GetById(id);
+        return await _tipoTransaccionRepository.GetById(id);
     }
 
-    public List<TipoTransaccion> GetAllTipoTransacciones()
+    public async Task< List<TipoTransaccion>> GetAllTipoTransacciones()
     {
-        return _tipoTransaccionRepository.GetAll();
+        return await _tipoTransaccionRepository.GetAll();
     }
 
-    public void AddTipoTransaccion(TipoTransaccion tipoTransaccion)
+    public async Task<TipoTransaccion> AddTipoTransaccion(TipoTransaccion tipoTransaccion)
     {
-        _tipoTransaccionRepository.Add(tipoTransaccion);
+        return await _tipoTransaccionRepository.Add(tipoTransaccion);
     }
 
-    public void UpdateTipoTransaccion(TipoTransaccion tipoTransaccion)
+    public async Task<TipoTransaccion> UpdateTipoTransaccion(TipoTransaccion tipoTransaccion)
     {
-        _tipoTransaccionRepository.Update(tipoTransaccion);
+        return await _tipoTransaccionRepository.Update(tipoTransaccion);
     }
 
-    public void DeleteTipoTransaccion(int id)
+    public async Task<int?> DeleteTipoTransaccion(int id)
     {
-        var tipoTransaccion = _tipoTransaccionRepository.GetById(id);
+        var tipoTransaccion = await _tipoTransaccionRepository.GetById(id);
         if (tipoTransaccion != null)
         {
-            _tipoTransaccionRepository.Delete(tipoTransaccion);
+            return await _tipoTransaccionRepository.Delete(tipoTransaccion);
         }
+        return 0;
     }
 }

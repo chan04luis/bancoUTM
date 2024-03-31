@@ -13,31 +13,33 @@ public class TipoTransaccionRepository : ITipoTransaccionRepository
         _context = context;
     }
 
-    public TipoTransaccion GetById(int id)
+    public async Task<TipoTransaccion?> GetById(int id)
     {
-        return _context.TipoTransaccions.Where(t => t.Id == id).FirstOrDefault();
+        return _context.TipoTransaccions.AsNoTracking().Where(t => t.Id == id).FirstOrDefault();
     }
 
-    public List<TipoTransaccion> GetAll()
+    public async Task<List<TipoTransaccion>> GetAll()
     {
-        return _context.TipoTransaccions.ToList();
+        return _context.TipoTransaccions.AsNoTracking().ToList();
     }
 
-    public void Add(TipoTransaccion tipoTransaccion)
+    public async Task<TipoTransaccion?> Add(TipoTransaccion tipoTransaccion)
     {
         _context.TipoTransaccions.Add(tipoTransaccion);
         _context.SaveChanges();
+        return tipoTransaccion;
     }
 
-    public void Update(TipoTransaccion tipoTransaccion)
+    public async Task<TipoTransaccion?> Update(TipoTransaccion tipoTransaccion)
     {
         _context.Entry(tipoTransaccion).State = EntityState.Modified;
         _context.SaveChanges();
+        return tipoTransaccion;
     }
 
-    public void Delete(TipoTransaccion tipoTransaccion)
+    public async Task<int?> Delete(TipoTransaccion tipoTransaccion)
     {
         _context.TipoTransaccions.Remove(tipoTransaccion);
-        _context.SaveChanges();
+        return _context.SaveChanges();
     }
 }

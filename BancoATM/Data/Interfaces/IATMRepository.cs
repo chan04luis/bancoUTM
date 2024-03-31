@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public interface IATMRepository
 {
-    List<ATM> GetAll();
-    ATM GetById(int id);
-    void Add(ATM atm);
-    void Update(ATM atm);
-    void Delete(ATM atm);
+    Task<List<ATM>> GetAll();
+    Task<ATM> GetById(int id);
+    Task<ATM> Add(ATM atm);
+    Task<ATM> Update(ATM atm);
+    Task<int> Delete(ATM atm);
 }

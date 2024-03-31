@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 public interface ITarjetaService
 {
-    Tarjeta GetTarjetaById(int id);
-    Tarjeta GetTarjetaByNip(string tarjeta);
-    List<Tarjeta> GetAllTarjetas();
-    void AddTarjeta(Tarjeta tarjeta);
-    void UpdateTarjeta(Tarjeta tarjeta);
-    void DeleteTarjeta(int id);
+    Task<TarjetaDTO> GetTarjetaById(int id);
+    Task<TarjetaDTO> GetTarjetaByNip(string tarjeta);
+    Task<List<TarjetaDTO>> GetAllTarjetas();
+    Task<TarjetaDTO> AddTarjeta(Tarjeta tarjeta);
+    Task<TarjetaDTO> UpdateTarjeta(TarjetaDTO tarjeta);
+    Task<int> DeleteTarjeta(int id);
+    Task<(bool, string)> validateNip(string nip, int id, bool validador);
 }

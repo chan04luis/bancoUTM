@@ -1,9 +1,9 @@
 ﻿
 public interface IClienteRepository
 {
-    Cliente GetById(int id);
-    List<Cliente> GetAll();
-    void Add(Cliente cliente);
-    void Update(Cliente cliente);
-    void Delete(Cliente cliente);
+    Task<Cliente> GetById(int id);
+    Task<List<Cliente>> GetAll();
+    Task<Cliente> Add(Cliente cliente);
+    Task<Cliente> Update(Cliente cliente);
+    Task<int> Delete(Cliente cliente);
 }

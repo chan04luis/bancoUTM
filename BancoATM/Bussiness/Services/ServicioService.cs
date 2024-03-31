@@ -10,32 +10,33 @@ public class ServicioService : IServicioService
         _servicioRepository = servicioRepository;
     }
 
-    public List<Servicio> GetAllServicios()
+    public async Task< List<Servicio>> GetAllServicios()
     {
-        return _servicioRepository.GetAll();
+        return await _servicioRepository.GetAll();
     }
 
-    public Servicio GetServicioById(int id)
+    public async Task<Servicio> GetServicioById(int id)
     {
-        return _servicioRepository.GetById(id);
+        return await _servicioRepository.GetById(id);
     }
 
-    public void AddServicio(Servicio servicio)
+    public async Task<Servicio> AddServicio(Servicio servicio)
     {
-        _servicioRepository.Add(servicio);
+        return await _servicioRepository.Add(servicio);
     }
 
-    public void UpdateServicio(Servicio servicio)
+    public async Task<Servicio> UpdateServicio(Servicio servicio)
     {
-        _servicioRepository.Update(servicio);
+        return await _servicioRepository.Update(servicio);
     }
 
-    public void DeleteServicio(int id)
+    public async Task<int> DeleteServicio(int id)
     {
-        var servicio = _servicioRepository.GetById(id);
+        var servicio = await _servicioRepository.GetById(id);
         if (servicio != null)
         {
-            _servicioRepository.Delete(servicio);
+            return await _servicioRepository.Delete(servicio);
         }
+        return 0;
     }
 }

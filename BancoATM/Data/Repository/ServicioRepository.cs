@@ -13,31 +13,33 @@ public class ServicioRepository : IServicioRepository
         _context = context;
     }
 
-    public List<Servicio> GetAll()
+    public async Task<List<Servicio>> GetAll()
     {
-        return _context.Servicios.Include(x => x.Tarjeta).Include(x=>x.Tarjeta.Cliente).ToList();
+        return _context.Servicios.AsNoTracking().Include(x => x.Tarjeta).Include(x=>x.Tarjeta.Cliente).ToList();
     }
 
-    public Servicio GetById(int id)
+    public async Task<Servicio> GetById(int id)
     {
-        return _context.Servicios.Include(x=>x.Tarjeta).Include(x => x.Tarjeta.Cliente).FirstOrDefault(s => s.Id == id);
+        return _context.Servicios.AsNoTracking().Include(x=>x.Tarjeta).Include(x => x.Tarjeta.Cliente).FirstOrDefault(s => s.Id == id);
     }
 
-    public void Add(Servicio servicio)
+    public async Task<Servicio> Add(Servicio servicio)
     {
         _context.Servicios.Add(servicio);
         _context.SaveChanges();
+        return servicio;
     }
 
-    public void Update(Servicio servicio)
+    public async Task<Servicio> Update(Servicio servicio)
     {
         _context.Entry(servicio).State = EntityState.Modified;
         _context.SaveChanges();
+        return servicio;
     }
 
-    public void Delete(Servicio servicio)
+    public async Task<int> Delete(Servicio servicio)
     {
         _context.Servicios.Remove(servicio);
-        _context.SaveChanges();
+        return _context.SaveChanges();
     }
 }

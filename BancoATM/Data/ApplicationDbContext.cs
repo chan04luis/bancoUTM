@@ -10,9 +10,13 @@ namespace Data
         public DbSet<Tarjeta> Tarjetas { get; set; }
         public DbSet<TipoTransaccion> TipoTransaccions { get; set; }
         public DbSet<Transaccion> Transaccions { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DbSet<CreditoTipo> CreditosTipo { get; set; }
+        public DbSet<CreditoPlazo> CreditosPlazos { get; set; }
+        public DbSet<Credito> Creditos { get; set; }
+        public DbSet<CreditoPagos> CreditosPagos { get; set; }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            optionsBuilder.UseSqlServer(@"Server=localhost;Database=banco;Trusted_Connection=True;TrustServerCertificate=True;User Id=sa;Password=chan04luis;");
+
         }
     }
 }

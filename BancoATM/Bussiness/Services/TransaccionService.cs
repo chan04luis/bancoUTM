@@ -10,32 +10,41 @@ public class TransaccionService : ITransaccionService
         _transaccionRepository = transaccionRepository;
     }
 
-    public List<Transaccion> GetAllTransacciones()
+    public async Task<List<TransaccionDTO>> GetAllTransacciones()
     {
-        return _transaccionRepository.GetAll();
+        var items = await _transaccionRepository.GetAll();
+        List<TransaccionDTO> list = new List<TransaccionDTO>();
+        items.ForEach(item =>
+        {
+            list.Add(Mapper.MapTransactionsToDTO(item));
+        });
+        return list;
     }
 
-    public Transaccion GetTransaccionById(int id)
+    public async Task<TransaccionDTO> GetTransaccionById(int id)
     {
-        return _transaccionRepository.GetById(id);
+        return Mapper.MapTransactionsToDTO(await _transaccionRepository.GetById(id));
     }
 
-    public void AddTransaccion(Transaccion transaccion)
+    public async Task<TransaccionDTO> AddTransaccion(TransaccionDTO transaccion)
     {
-        _transaccionRepository.Add(transaccion);
+        var item = await _transaccionRepository.Add(Mapper.MapTransactionsToDTO(transaccion));
+        return Mapper.MapTransactionsToDTO(item);
     }
 
-    public void UpdateTransaccion(Transaccion transaccion)
+    public async Task<TransaccionDTO> UpdateTransaccion(TransaccionDTO transaccion)
     {
-        _transaccionRepository.Update(transaccion);
+        var item = await _transaccionRepository.Update(Mapper.MapTransactionsToDTO(transaccion));
+        return Mapper.MapTransactionsToDTO(item);
     }
 
-    public void DeleteTransaccion(int id)
+    public async Task<int> DeleteTransaccion(int id)
     {
-        var transaccion = _transaccionRepository.GetById(id);
+        var transaccion = await _transaccionRepository.GetById(id);
         if (transaccion != null)
         {
-            _transaccionRepository.Delete(transaccion);
+            return await _transaccionRepository.Delete(transaccion);
         }
+        return 0;
     }
 }

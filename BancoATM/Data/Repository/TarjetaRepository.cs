@@ -11,36 +11,38 @@ public class TarjetaRepository : ITarjetaRepository
         _context = context;
     }
 
-    public Tarjeta GetById(int id)
+    public async Task<Tarjeta> GetById(int id)
     {
-        return _context.Tarjetas.Where(t => t.Id == id).Include(u => u.Cliente).FirstOrDefault();
+        return _context.Tarjetas.AsNoTracking().Where(t => t.Id == id).Include(u => u.Cliente).FirstOrDefault();
     }
 
-    public Tarjeta GetByTD(string tarjeta)
+    public async Task<Tarjeta> GetByTD(string tarjeta)
     {
-        return _context.Tarjetas.Where(t => t.tarjeta == tarjeta).Include(u => u.Cliente).FirstOrDefault();
+        return _context.Tarjetas.AsNoTracking().Where(t => t.tarjeta == tarjeta).Include(u => u.Cliente).FirstOrDefault();
     }
 
-    public List<Tarjeta> GetAll()
+    public async Task<List<Tarjeta>> GetAll()
     {
-        return _context.Tarjetas.ToList();
+        return _context.Tarjetas.AsNoTracking().ToList();
     }
 
-    public void Add(Tarjeta tarjeta)
+    public async Task<Tarjeta> Add(Tarjeta tarjeta)
     {
         _context.Tarjetas.Add(tarjeta);
         _context.SaveChanges();
+        return tarjeta;
     }
 
-    public void Update(Tarjeta tarjeta)
+    public async Task<Tarjeta> Update(Tarjeta tarjeta)
     {
         _context.Entry(tarjeta).State = EntityState.Modified;
         _context.SaveChanges();
+        return tarjeta;
     }
 
-    public void Delete(Tarjeta tarjeta)
+    public async Task<int> Delete(Tarjeta tarjeta)
     {
         _context.Tarjetas.Remove(tarjeta);
-        _context.SaveChanges();
+        return _context.SaveChanges();
     }
 }

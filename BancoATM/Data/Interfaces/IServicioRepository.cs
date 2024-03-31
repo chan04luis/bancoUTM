@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public interface IServicioRepository
 {
-    List<Servicio> GetAll();
-    Servicio GetById(int id);
-    void Add(Servicio servicio);
-    void Update(Servicio servicio);
-    void Delete(Servicio servicio);
+    Task<List<Servicio>> GetAll();
+    Task<Servicio> GetById(int id);
+    Task<Servicio> Add(Servicio servicio);
+    Task<Servicio> Update(Servicio servicio);
+    Task<int> Delete(Servicio servicio);
 }

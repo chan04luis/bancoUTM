@@ -11,20 +11,23 @@ public class CorreoElectronicoService : ICorreoElectronicoService
 
     public void EnviarCorreo(string destinatario, string asunto, string cuerpo)
     {
-        using (var clienteSmtp = new SmtpClient(_servidorSmtp, _puertoSmtp))
+        try
         {
-            clienteSmtp.UseDefaultCredentials = false;
-            clienteSmtp.Credentials = new NetworkCredential(_correoRemitente, _contrasenaRemitente);
-            clienteSmtp.EnableSsl = true;
-
-            using (var mensaje = new MailMessage(_correoRemitente, destinatario))
+            using (var clienteSmtp = new SmtpClient(_servidorSmtp, _puertoSmtp))
             {
-                mensaje.Subject = asunto;
-                mensaje.Body = cuerpo;
-                mensaje.IsBodyHtml = true;
+                clienteSmtp.UseDefaultCredentials = false;
+                clienteSmtp.Credentials = new NetworkCredential(_correoRemitente, _contrasenaRemitente);
+                clienteSmtp.EnableSsl = true;
 
-                clienteSmtp.Send(mensaje);
+                using (var mensaje = new MailMessage(_correoRemitente, destinatario))
+                {
+                    mensaje.Subject = asunto;
+                    mensaje.Body = cuerpo;
+                    mensaje.IsBodyHtml = true;
+
+                    clienteSmtp.Send(mensaje);
+                }
             }
-        }
+        }catch(Exception ex) { }
     }
 }

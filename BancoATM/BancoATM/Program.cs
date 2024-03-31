@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
+/*
 class Program
 {
     static void Main()
@@ -126,7 +126,7 @@ class Program
                                 break;
                             case 4:
                                 hello("Ultimos 5 movimientos");
-                                var last5 = transactionsService.GetAllTransacciones().Where(x => x.Id_Cuenta == item.Id).OrderByDescending(x => x.Fecha_Registro).Take(5).ToList();
+                                var last5 = transactionsService.GetAllTransacciones().Where(x => x.Id_Cuenta == item.Id && x.TipoTransaccion.Edo_Cuenta==1).OrderByDescending(x => x.Fecha_Registro).Take(5).ToList();
                                 top5(last5);
                                 break;
                             case 5:
@@ -399,8 +399,8 @@ class Program
             switch (selected)
             {
                 case 1:
-                    /*Quicksorter<Transaccion> sorter = new Quicksorter<Transaccion>();
-                    sorter.Sort(list);*/
+                    Quicksorter<Transaccion> sorter = new Quicksorter<Transaccion>();
+                    sorter.Sort(list);
                     break;
                 case 2: break;
                 case 0: continuar = false; break;
@@ -784,4 +784,4 @@ class Program
         }
         return true;
     }
-}
+}*/

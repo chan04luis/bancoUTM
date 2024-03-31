@@ -13,31 +13,33 @@ public class ClienteRepository : IClienteRepository
         _context = context;
     }
 
-    public Cliente GetById(int id)
+    public async Task<Cliente> GetById(int id)
     {
-        return _context.Clientes.FirstOrDefault(c => c.Id == id);
+        return _context.Clientes.AsNoTracking().FirstOrDefault(c => c.Id == id);
     }
 
-    public List<Cliente> GetAll()
+    public async Task<List<Cliente>> GetAll()
     {
-        return _context.Clientes.ToList();
+        return _context.Clientes.AsNoTracking().ToList();
     }
 
-    public void Add(Cliente cliente)
+    public async Task<Cliente> Add(Cliente cliente)
     {
         _context.Clientes.Add(cliente);
         _context.SaveChanges();
+        return cliente;
     }
 
-    public void Update(Cliente cliente)
+    public async Task<Cliente> Update(Cliente cliente)
     {
         _context.Entry(cliente).State = EntityState.Modified;
         _context.SaveChanges();
+        return cliente;
     }
 
-    public void Delete(Cliente cliente)
+    public async Task<int> Delete(Cliente cliente)
     {
         _context.Clientes.Remove(cliente);
-        _context.SaveChanges();
+        return _context.SaveChanges();
     }
 }
