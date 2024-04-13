@@ -39,6 +39,10 @@ builder.Services.AddScoped<ICreditoMapper, CreditoMapper>();
 builder.Services.AddScoped<ICreditoRepository, CreditoRepository>();
 builder.Services.AddScoped<ICreditoService, CreditoService>();
 
+
+builder.Services.AddScoped<ITransaccionService, TransaccionService>();
+builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
+
 builder.Services.AddCors(options => options.AddPolicy("AllowWebapp",
                                     builder => builder.AllowAnyOrigin()
                                                     .AllowAnyHeader()

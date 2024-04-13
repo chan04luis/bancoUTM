@@ -34,6 +34,7 @@ public class TransaccionRepository : ITransaccionRepository
     {
         _context.Entry(transaccion).State = EntityState.Modified;
         _context.SaveChanges();
+        transaccion.TipoTransaccion = _context.TipoTransaccions.Where(x => x.Id == transaccion.Id_Tipo).FirstOrDefault();
         return transaccion;
     }
 

@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 public class TarjetaController : ControllerBase
 {
     private readonly ITarjetaService _tarjetaService;
-    public TarjetaController(ITarjetaService tarjetaService)
+
+    private readonly ITransaccionService _transaccionService;
+    public TarjetaController(ITarjetaService tarjetaService, ITransaccionService transaccionService)
     {
         _tarjetaService = tarjetaService;
+        _transaccionService = transaccionService;
     }
     [HttpGet("read/{tarjeta}")]
     public async Task<IActionResult> ReadTarjeta(string tarjeta)
@@ -69,21 +72,76 @@ public class TarjetaController : ControllerBase
             else
             {
                 tarjeta.Nip = tarjetaNip.nip_nuevo;
+                tarjeta.Fecha_Actualizado = DateTime.Now;
+                TransaccionDTO transaccion = new TransaccionDTO();
+                transaccion.Descripcion = "Cambio de nip";
+                transaccion.Id_Cuenta = tarjeta.Id;
+                transaccion.Id_Tipo = 5;
+                transaccion.Edo_cuenta = tarjeta.Id;
+                transaccion.Referencia = "";
+                transaccion.Importe = 0;
+                var item = await _transaccionService.AddTransaccion(transaccion);
                 var answer_change = await _tarjetaService.UpdateTarjeta(tarjeta);
-                return Ok(new { success = true, message = answer_change });
+
+                return Ok(new { success = true, item = answer_change, transaccion= item });
             }
-            return Ok(new { success = resp, message = resp_new, tarjeta= tarjeta });
         }
         catch(Exception ex)
         {
             return Ok(new { success = false, message = ex.Message });
         }
     }
-
-
-    /*[HttpPost("Depositar/firts")]
-    public async Task<IActionResult> firtsValidation()
+    [HttpGet("{id}")]
+    public async Task<IActionResult> getSingle(int id)
     {
+        return Ok(await _tarjetaService.GetTarjetaById(id));
+    }
+    [HttpGet("last5/{id}")]
+    public async Task<IActionResult> get5(int id)
+    {
+        var items =await _transaccionService.GetAllTransacciones();
+        var results = items
+            .Where(x=>x.Id_Cuenta==id && x.TipoTransaccion.Edo_Cuenta==1)
+            .OrderByDescending(x=>x.Fecha_Registro)
+            .Take(5)
+            .ToList();
+        return Ok(results);
+    }
+    [HttpGet("today/{id}")]
+    public async Task<IActionResult> getToday(int id)
+    {
+        var items = await _transaccionService.GetAllTransacciones();
+        var results = items
+            .Where(x => x.Id_Cuenta == id 
+            && x.TipoTransaccion.Edo_Cuenta == 1
+            && x.Fecha_Registro.Date == DateTime.Now.Date)
+            .ToList();
+        return Ok(new { total = results.Sum(x=>x.Importe)});
+    }
 
-    }*/
+    [HttpPut("retirar")]
+    public async Task<IActionResult> withdraw([FromBody] TarjetaRetiroDTO tarjetaRetiro)
+    {
+        try
+        {
+            var tarjeta = await _tarjetaService.GetTarjetaById(tarjetaRetiro.id);
+            tarjeta.Saldo -= tarjetaRetiro.retiro;
+            tarjeta.Fecha_Actualizado = DateTime.Now;
+            TransaccionDTO transaccion = new TransaccionDTO();
+            transaccion.Descripcion = $"Retiro de {tarjetaRetiro.retiro:F2} a cuenta a tarjeta {tarjeta.Tarjeta} saldo actual {tarjeta.Saldo}";
+            transaccion.Id_Cuenta = tarjeta.Id;
+            transaccion.Id_Tipo = 2;
+            transaccion.Edo_cuenta = tarjeta.Id;
+            transaccion.Referencia = "";
+            transaccion.Importe = 0;
+            var item = await _transaccionService.AddTransaccion(transaccion);
+            var answer_change = await _tarjetaService.UpdateTarjeta(tarjeta);
+
+            return Ok(new { success = true, item = answer_change, transaccion = item });
+        }
+        catch (Exception ex)
+        {
+            return Ok(new { success = false, message = ex.Message });
+        }
+    }
 }

@@ -21,20 +21,39 @@ public static class Mapper
         }
     }
 
-    public static TarjetaDTO MapTarjetaToDTO(Tarjeta tarjeta)
+    public static TarjetaDTO MapTarjetaToDTO(Tarjeta? tarjeta)
     {
-        return new TarjetaDTO
+        if (tarjeta != null)
         {
-            Id = tarjeta.Id,
-            Tarjeta = tarjeta.tarjeta,
-            Limite = tarjeta.Limite,
-            Nip = tarjeta.NIP,
-            Tipo = tarjeta.Tipo,
-            Saldo = tarjeta.Saldo,
-            Fecha_Actualizado = tarjeta.Fecha_Actualizado,
-            Fecha_Registro = tarjeta.Fecha_Registro,
-            Cliente = MapClienteToDTO(tarjeta.Cliente)
-        };
+            return new TarjetaDTO
+            {
+                Id = tarjeta.Id,
+                Tarjeta = tarjeta.tarjeta,
+                Limite = tarjeta.Limite,
+                Nip = tarjeta.NIP,
+                Tipo = tarjeta.Tipo,
+                Saldo = tarjeta.Saldo,
+                Fecha_Actualizado = tarjeta.Fecha_Actualizado,
+                Fecha_Registro = tarjeta.Fecha_Registro,
+                Cliente = MapClienteToDTO(tarjeta.Cliente)
+            };
+        }
+        else
+        {
+            return new TarjetaDTO
+            {
+                Id = 0,
+                Tarjeta = "",
+                Limite = 0,
+                Nip = "",
+                Tipo = 0,
+                Saldo = 0,
+                Fecha_Actualizado = DateTime.Now,
+                Fecha_Registro = DateTime.Now,
+                Cliente = MapClienteToDTO(tarjeta?.Cliente)
+            };
+        }
+        
     }
     public static Tarjeta MapTarjetaToDTO(TarjetaDTO tarjeta)
     {
