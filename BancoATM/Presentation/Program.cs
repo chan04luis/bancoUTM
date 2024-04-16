@@ -1,5 +1,6 @@
 using Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,35 +12,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+builder.Services.AddScoped<IServicioRepository, ServicioRepository>();
+builder.Services.AddScoped<IServicioService, ServicioService>();
 builder.Services.AddScoped<ITarjetaRepository, TarjetaRepository>();
 builder.Services.AddScoped<ITarjetaService, TarjetaService>();
 builder.Services.AddScoped<IATMRepository, ATMRepository>();
 builder.Services.AddScoped<IATMService, ATMService>();
-
-
-
 builder.Services.AddScoped<ICreditoTipoMapper, CreditoTipoMapper>();
 builder.Services.AddScoped<ICreditoTipoRepository, CreditoTipoRepository>();
 builder.Services.AddScoped<ICreditoTipoService, CreditoTipoService>();
-
 builder.Services.AddScoped<ICreditoPlazoMapper, CreditoPlazoMapper>();
 builder.Services.AddScoped<ICreditoPlazoRepository, CreditoPlazoRepository>();
 builder.Services.AddScoped<ICreditoPlazoService, CreditoPlazoService>();
-
-
-
-
 builder.Services.AddScoped<ICreditoPagosMapper, CreditoPagosMapper>();
 builder.Services.AddScoped<ICreditoPagosRepository, CreditoPagosRepository>();
 builder.Services.AddScoped<ICreditoPagosService, CreditoPagosService>();
-
-
-
 builder.Services.AddScoped<ICreditoMapper, CreditoMapper>();
 builder.Services.AddScoped<ICreditoRepository, CreditoRepository>();
 builder.Services.AddScoped<ICreditoService, CreditoService>();
-
-
 builder.Services.AddScoped<ITransaccionService, TransaccionService>();
 builder.Services.AddScoped<ITransaccionRepository, TransaccionRepository>();
 
@@ -47,9 +37,11 @@ builder.Services.AddCors(options => options.AddPolicy("AllowWebapp",
                                     builder => builder.AllowAnyOrigin()
                                                     .AllowAnyHeader()
                                                     .AllowAnyMethod()));
+
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("cadenaSQL"));
+    option.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 var app = builder.Build();

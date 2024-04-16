@@ -35,7 +35,7 @@ public class TarjetaRepository : ITarjetaRepository
 
     public async Task<Tarjeta> Update(Tarjeta tarjeta)
     {
-        _context.Entry(tarjeta).State = EntityState.Modified;
+        _context.Entry(tarjeta).State = EntityState.Detached;
         _context.SaveChanges();
         return tarjeta;
     }

@@ -32,7 +32,8 @@ public class ATMRepository : IATMRepository
 
     public async Task<ATM> Update(ATM atm)
     {
-        _context.Entry(atm).State = EntityState.Modified;
+        //Entry<CustomerBaseInfo>(data).State = EntityState.Detached;
+        _context.Entry(atm).State = EntityState.Detached;
         _context.SaveChanges();
         return atm;
     }

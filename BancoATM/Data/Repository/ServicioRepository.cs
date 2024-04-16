@@ -32,7 +32,7 @@ public class ServicioRepository : IServicioRepository
 
     public async Task<Servicio> Update(Servicio servicio)
     {
-        _context.Entry(servicio).State = EntityState.Modified;
+        _context.Entry(servicio).State = EntityState.Detached;
         _context.SaveChanges();
         return servicio;
     }

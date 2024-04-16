@@ -32,7 +32,7 @@ public static class Mapper
                 Limite = tarjeta.Limite,
                 Nip = tarjeta.NIP,
                 Tipo = tarjeta.Tipo,
-                Saldo = tarjeta.Saldo,
+                Saldo = (decimal)tarjeta.Saldo,
                 Fecha_Actualizado = tarjeta.Fecha_Actualizado,
                 Fecha_Registro = tarjeta.Fecha_Registro,
                 Cliente = MapClienteToDTO(tarjeta.Cliente)

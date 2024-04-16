@@ -111,12 +111,13 @@ public class TarjetaController : ControllerBase
     public async Task<IActionResult> getToday(int id)
     {
         var items = await _transaccionService.GetAllTransacciones();
+        var today = DateTime.Today;
         var results = items
             .Where(x => x.Id_Cuenta == id 
             && x.TipoTransaccion.Edo_Cuenta == 1
-            && x.Fecha_Registro.Date == DateTime.Now.Date)
+            && x.Fecha_Registro.Date == today)
             .ToList();
-        return Ok(new { total = results.Sum(x=>x.Importe)});
+        return Ok(new { total = results.Sum(x=>x.Importe), fecha= DateTime.Now.Date });
     }
 
     [HttpPut("retirar")]
