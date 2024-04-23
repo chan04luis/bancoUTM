@@ -12,11 +12,13 @@ namespace Presentation.Controllers
         private readonly IATMService _ATMService;
         private readonly ITarjetaService _tarjetaService;
         private readonly ITransaccionService _transaccionService;
-        public ATMController(IATMService aTMService, ITarjetaService tarjetaService, ITransaccionService transaccionService)
+        private readonly ICorreoElectronicoService _correoElectronicoService;
+        public ATMController(IATMService aTMService, ITarjetaService tarjetaService, ITransaccionService transaccionService, ICorreoElectronicoService correoElectronicoService)
         {
             _ATMService = aTMService;
             _tarjetaService = tarjetaService;
             _transaccionService = transaccionService;
+            _correoElectronicoService = correoElectronicoService;
         }
         [HttpGet("{tipo}")]
         public async Task<IActionResult> validateRetiro(int tipo=1)
@@ -91,13 +93,14 @@ namespace Presentation.Controllers
                         tarjeta.Saldo += retiro;
                     }
                     TransaccionDTO transaccion = new TransaccionDTO();
-                    transaccion.Descripcion = $"Retiro de {retiro:F2} a cuenta a tarjeta {tarjeta.Tarjeta} saldo actual {tarjeta.Saldo}";
+                    transaccion.Descripcion = $"Retiro de ${retiro:F2} a tarjeta {tarjeta.Tarjeta} saldo actual ${tarjeta.Saldo}";
                     transaccion.Id_Cuenta = tarjeta.Id;
                     transaccion.Id_Tipo = 2;
                     transaccion.Edo_cuenta = tarjeta.Id;
                     transaccion.Referencia = "";
                     transaccion.Importe = retiro;
                     var item = await _transaccionService.AddTransaccion(transaccion);
+                    _correoElectronicoService.EnviarCorreo(tarjeta.Cliente.Email, "Retiro de efectivo", transaccion.Descripcion);
                     var service = await _tarjetaService.UpdateTarjeta(tarjeta);
                     return Ok(new { success = true, message = "Disponible", cashList = itemsEntregado, transaccion = item, tarjeta = service });
 
@@ -145,61 +148,70 @@ namespace Presentation.Controllers
             else
             {
                 var billetes = depositCheckDTO.depositDTOs?.Where(x => x.cantidad > 0);
-                var tarjeta = await _tarjetaService.GetTarjetaById(depositCheckDTO.id);
-                if (tarjeta == null)
+                if(billetes.Sum(x=>x.cantidad*x.valor) >= depositCheckDTO.monto)
                 {
-                    return Ok(new { success = false, message = "No existe cuenta" });
-                }
-                else
-                {
-                    decimal retiro = Convert.ToDecimal(depositCheckDTO.depositDTOs?.Where(x=>x?.cantidad>0).Sum(x => x?.valor*x?.cantidad));
-                    if (tarjeta.Tipo == 1)
+                    var tarjeta = await _tarjetaService.GetTarjetaById(depositCheckDTO.id);
+                    if (tarjeta == null)
                     {
-                        tarjeta.Saldo += retiro;
+                        return Ok(new { success = false, message = "No existe cuenta" });
                     }
                     else
                     {
-                        tarjeta.Saldo -= retiro;
-                    }
-                    var itemsEntregado = new List<ATMCashOut>();
-                    if (retiro > depositCheckDTO.monto)
-                    {
-                        var cambio = retiro - depositCheckDTO.monto;
-                        var dep = await _ATMService.GetAllATMs();
-                        dep = dep.Where(x => x.Cantidad > 0).OrderByDescending(x => x.Denominacion).ToList();
-                        foreach (var i in dep)
+                        decimal retiro = Convert.ToDecimal(depositCheckDTO.depositDTOs?.Where(x => x?.cantidad > 0).Sum(x => x?.valor * x?.cantidad));
+                        if (tarjeta.Tipo == 1)
                         {
-                            var cantidad = (int)(cambio / i.Denominacion);
-                            cambio %= i.Denominacion;
-                            if (cantidad > 0)
+                            tarjeta.Saldo += retiro;
+                        }
+                        else
+                        {
+                            tarjeta.Saldo -= retiro;
+                        }
+                        var itemsEntregado = new List<ATMCashOut>();
+                        if (retiro > depositCheckDTO.monto)
+                        {
+                            var cambio = retiro - depositCheckDTO.monto;
+                            var dep = await _ATMService.GetAllATMs();
+                            dep = dep.Where(x => x.Cantidad > 0).OrderByDescending(x => x.Denominacion).ToList();
+                            foreach (var i in dep)
                             {
-                                itemsEntregado.Add(new ATMCashOut() { Cantidad = cantidad, Denominacion = $"{i.Denominacion:F2}", id=i.Id });
+                                var cantidad = (int)(cambio / i.Denominacion);
+                                cambio %= i.Denominacion;
+                                if (cantidad > 0)
+                                {
+                                    itemsEntregado.Add(new ATMCashOut() { Cantidad = cantidad, Denominacion = $"{i.Denominacion:F2}", id = i.Id });
+                                }
                             }
                         }
+                        foreach (var i in depositCheckDTO.depositDTOs)
+                        {
+                            var atm = await _ATMService.GetATMById(i.id);
+                            atm.Cantidad += i.cantidad;
+                            var result = await _ATMService.UpdateATM(atm);
+                        }
+                        foreach (var i in itemsEntregado)
+                        {
+                            var atm = await _ATMService.GetATMById(i.id);
+                            atm.Cantidad -= i.Cantidad;
+                            var result = await _ATMService.UpdateATM(atm);
+                        }
+                        TransaccionDTO transaccion = new TransaccionDTO();
+                        transaccion.Descripcion = $"Deposito de ${retiro:F2} a tarjeta {tarjeta.Tarjeta} saldo actual ${tarjeta.Saldo}";
+                        transaccion.Id_Cuenta = tarjeta.Id;
+                        transaccion.Id_Tipo = 1;
+                        transaccion.Edo_cuenta = tarjeta.Id;
+                        transaccion.Referencia = "";
+                        transaccion.Importe = retiro;
+                        var item = await _transaccionService.AddTransaccion(transaccion);
+                        var service = await _tarjetaService.UpdateTarjeta(tarjeta);
+                        _correoElectronicoService.EnviarCorreo(tarjeta.Cliente.Email, "Deposito de efectivo", transaccion.Descripcion);
+                        return Ok(new { success = true, message = "Disponible", cashList = itemsEntregado, transaccion = item, tarjeta = service });
                     }
-                    foreach (var i in depositCheckDTO.depositDTOs)
-                    {
-                        var atm = await _ATMService.GetATMById(i.id);
-                        atm.Cantidad += i.cantidad;
-                        var result = await _ATMService.UpdateATM(atm);
-                    }
-                    foreach (var i in itemsEntregado)
-                    {
-                        var atm = await _ATMService.GetATMById(i.id);
-                        atm.Cantidad -= i.Cantidad;
-                        var result = await _ATMService.UpdateATM(atm);
-                    }
-                    TransaccionDTO transaccion = new TransaccionDTO();
-                    transaccion.Descripcion = $"Deposito de {retiro:F2} a cuenta a tarjeta {tarjeta.Tarjeta} saldo actual {tarjeta.Saldo}";
-                    transaccion.Id_Cuenta = tarjeta.Id;
-                    transaccion.Id_Tipo = 1;
-                    transaccion.Edo_cuenta = tarjeta.Id;
-                    transaccion.Referencia = "";
-                    transaccion.Importe = retiro;
-                    var item = await _transaccionService.AddTransaccion(transaccion);
-                    var service = await _tarjetaService.UpdateTarjeta(tarjeta);
-                    return Ok(new { success = true, message = "Disponible", cashList = itemsEntregado, transaccion = item, tarjeta = service });
                 }
+                else
+                {
+                    return Ok(new { success = false, message = "Los billetes ingresados son menor al monto a depositar" });
+                }
+                
             }
         }
 

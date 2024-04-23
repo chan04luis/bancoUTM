@@ -13,6 +13,12 @@ public class CreditosController : ControllerBase
         _creditoService = creditoService;
         _tipoCreditoService = tipoCreditoService;
     }
+    [HttpGet("ByClient/{id_cliente}")]
+    public async Task<ActionResult<List<CreditoDTO>>> GetAllCreditos(int id_cliente)
+    {
+        var creditos = await _creditoService.GetAllCreditos();
+        return creditos.Where(x=>x.IdCliente==id_cliente && x.creditoPagosDTO.Where(c=>c.Estatus==0).Count()>0).ToList();
+    }
 
     [HttpGet]
     public async Task<ActionResult<List<CreditoDTO>>> GetAllCreditos()

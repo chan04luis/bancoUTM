@@ -115,6 +115,7 @@ public class TarjetaController : ControllerBase
         var results = items
             .Where(x => x.Id_Cuenta == id 
             && x.TipoTransaccion.Edo_Cuenta == 1
+            && x.Id_Tipo==2
             && x.Fecha_Registro.Date == today)
             .ToList();
         return Ok(new { total = results.Sum(x=>x.Importe), fecha= DateTime.Now.Date });

@@ -11,12 +11,14 @@ namespace Presentation.Controllers
         private readonly ITarjetaService _tarjetaService;
         private readonly IATMService _ATMService;
         private readonly ITransaccionService _transaccionService;
-        public ServiciosController(IServicioService servicioService, ITarjetaService tarjetaService, IATMService aTMService, ITransaccionService transaccionService)
+        private readonly ICorreoElectronicoService _correoElectronicoService;
+        public ServiciosController(IServicioService servicioService, ITarjetaService tarjetaService, IATMService aTMService, ITransaccionService transaccionService,ICorreoElectronicoService correoElectronicoService)
         {
             _servicioService = servicioService;
             _ATMService = aTMService;
             _tarjetaService = tarjetaService;
             _transaccionService = transaccionService;
+            _correoElectronicoService = correoElectronicoService;
         }
         [HttpGet]
         public async Task<IActionResult> getAll()
@@ -88,6 +90,8 @@ namespace Presentation.Controllers
                         var item2 = await _transaccionService.AddTransaccion(transaccionDestino);
                         var service = await _tarjetaService.UpdateTarjeta(tarjeta);
 
+                        _correoElectronicoService.EnviarCorreo(tarjeta.Cliente.Email, "Pago de servicio", transaccion.Descripcion);
+                        _correoElectronicoService.EnviarCorreo(destino.Cliente.Email, "Pago de servicio", transaccionDestino.Descripcion);
                         return Ok(new { success = true, message = "Disponible", transaccion = item1, tarjeta = service });
                     }
                     else
